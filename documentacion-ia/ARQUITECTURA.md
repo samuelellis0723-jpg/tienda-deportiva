@@ -24,3 +24,11 @@ El agente ayuda a clientes a encontrar productos, entender tallas, disponibilida
 ## Pendientes antes de producción
 
 Definir canal, proveedor/modelo, consentimiento y retención, proceso de transferencia humana, autenticación de consulta de pedidos y límites de costo. Las rutas del contrato están en `CONTRATOS_API.md`.
+
+## Workflow OJE para tienda y catálogo
+
+El workflow importable está en `n8n/oje-assistant.workflow.json` y expone `POST /webhook/oje-assistant`. El webhook valida `action` (`cities`, `coverage`, `description`, `recommend`) y normaliza toda salida como `{ ok, data, error }`. Ciudades, cotización y catálogo se consultan en Express; n8n no almacena copias de tarifas, disponibilidad o productos. El frontend usa el mismo webhook para checkout, recomendaciones en el carrito y generación de borradores de descripción en administración.
+
+Para recomendaciones, la IA solo propone IDs. Un nodo posterior filtra esos IDs contra productos publicados devueltos por `GET /api/productos?disponible=true&limit=100&ordenar=reciente`, excluye productos que ya están en el carrito y entrega las filas originales de la API. El máximo de 100 corresponde al límite documentado de la API. Para descripciones se envían nombre, categoría y, opcionalmente, características provistas; el prompt prohíbe afirmar especificaciones que no estén en esos datos. La salida del modelo se analiza y valida antes de responder.
+
+La URL del webhook no contiene secretos. La credencial del modelo se configura en el nodo de chat dentro de n8n y nunca se exporta. El webhook de tienda es accesible desde el navegador; CORS restringe navegadores, pero no autentica clientes. Antes de publicar, limita solicitudes de IA con rate limiting en el proxy/WAF, ajusta CORS al origen exacto del frontend y define cuota/retención del proveedor. `VITE_N8N_WEBHOOK_URL` es la URL pública del webhook, no una clave.

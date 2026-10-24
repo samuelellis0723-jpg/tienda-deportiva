@@ -1,0 +1,22 @@
+{
+    "name":  "oje-backend",
+    "version":  "0.1.0",
+    "private":  true,
+    "type":  "module",
+    "engines":  {
+                    "node":  "\u003e=20"
+                },
+    "scripts":  {
+                    "start":  "node src/server.js",
+                    "dev":  "node --watch src/server.js",
+                    "check":  "node --check src/server.js \u0026\u0026 node --check src/app.js",
+                    "admin:create":  "node scripts/createAdmin.js",
+                    "test":  "node --test"
+                },
+    "dependencies":  {
+                         "dotenv":  "^16.4.7",
+                         "express":  "^5.1.0",
+                         "express-rate-limit":  "^8.7.1",
+                         "pg":  "^8.16.3"
+                     }
+}

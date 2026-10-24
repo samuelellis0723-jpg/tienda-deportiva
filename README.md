@@ -1,45 +1,21 @@
-﻿# OJE — arquitectura inicial
+# OJE — tienda deportiva
 
-OJE es una tienda en línea de ropa y equipo para Judo y BJJ. Este repositorio contiene el plano del producto, límites entre módulos, contratos y carpetas preparadas. No incluye todavía lógica funcional ni dependencias instaladas.
+Tienda de ropa y equipo para Judo y BJJ. Este repositorio contiene el diseño y la base de implementación.
 
 ## Stack
 
 - `frontend/`: React, Vite y React Router.
-- `backend/`: Node.js y Express como API REST.
-- Persistencia PostgreSQL con migraciones versionadas.
-- `documentacion-ia/`: diseño del agente conversacional en n8n; n8n no forma parte del backend ni accede directamente a la base de datos.
+- `backend/`: Node.js, Express y PostgreSQL; la API sigue rutas → controladores → servicios → modelos.
+- `documentacion-ia/`: arquitectura del agente de n8n, que consume la API y no accede directamente a PostgreSQL.
 
-## Mapa
+## Backend
 
-- `frontend/src/components/`: componentes reutilizables de interfaz y estructura.
-- `frontend/src/pages/`: pantallas por dominio.
-- `frontend/src/routes/`: composición de rutas públicas y protegidas.
-- `frontend/src/services/`: clientes HTTP del frontend; no contienen reglas comerciales.
-- `backend/src/routes/` → `controllers/` → `services/` → `models/` → PostgreSQL.
-- `backend/database/`: migraciones y datos iniciales reproducibles.
-- `diseño/DESIGN.md`: sistema visual inicial.
-- `documentacion-ia/`: límites e integración del agente de n8n.
+Las instrucciones de dependencias, variables de entorno, migración y seeds están en `backend/database/README.md`. Los endpoints iniciales y filtros están descritos en `documentacion-ia/CONTRATOS_API.md`.
 
-## Decisiones de alcance
+La API de catálogo usa PostgreSQL existente. Los productos públicos solo incluyen estado `publicado`; las operaciones administrativas usan sesión de usuario almacenada en cookie `HttpOnly`. No se usa token administrativo compartido.
 
-La administración tiene login y rutas protegidas, así que se incluye `pages/auth/` y `PrivateRoutes.jsx`. La tienda pública ofrece catálogo filtrable por categoría, productos publicados y colecciones destacadas. Los estados borrador/publicado se administran desde el backend. Las páginas son carpetas de dominio, no una capa de lógica.
+El inventario vive únicamente en `inventory`: la cantidad física es `on_hand` y la disponible es `on_hand - reserved`, por variante. No hay stock duplicado en `products` o `product_variants`.
 
-El umbral propuesto para envío gratis es ₡35 000 CRC de subtotal elegible después de descuentos y antes de impuestos/envío. Se puede ajustar como configuración comercial, no debe quedar duplicado en el frontend. Al cancelar una orden, un cupón de un solo uso se restituye solo si la orden no fue enviada y el cupón sigue vigente; los cupones de uso múltiple no consumen un uso individual. El cambio y la liberación de inventario deben ser atómicos e idempotentes.
+## Estado de la base de datos
 
-## Crítica y ajustes aplicados
-
-- Evité una carpeta por cada tipo de componente; hay solo `layout/` y `ui/` como pide el alcance.
-- Separé páginas de dominio, servicios HTTP y reglas de negocio para evitar lógica comercial dentro de componentes/controladores.
-- No añadí estado global para todo: `context/` queda reservado para sesión/carrito compartidos; el estado de pantalla permanece local.
-- No añadí un microservicio separado para n8n. La API es el límite de seguridad y n8n consume endpoints de agente acotados.
-- Se añaden autenticación, roles, variantes/tallas, inventario, idempotencia de pagos y auditoría, que faltaban para que órdenes y administración fueran operables.
-- No se incluyen archivos de ejemplo que aparenten implementar la tienda. Los módulos vacíos están marcados con `.gitkeep` y el contrato es documental.
-
-## Próximos pasos de implementación
-
-1. Confirmar precios, impuestos, transportista, política de devoluciones y proveedor de pagos.
-2. Crear los paquetes y configurar variables de entorno y migraciones.
-3. Implementar primero autenticación, catálogo e inventario; después carrito, órdenes y pagos.
-4. Conectar n8n mediante credenciales limitadas y probar consultas sin mutaciones.
-
-Consulta `diseño/DESIGN.md` y `documentacion-ia/ARQUITECTURA.md` para especificaciones.
+Las migraciones y los seeds están preparados, pero no se han ejecutado contra PostgreSQL en este entorno. La primera conexión real debe aplicar `backend/database/migrations/001_initial_schema.sql`, `backend/database/migrations/002_admin_sessions.sql`, `backend/database/migrations/003_order_idempotency_fingerprint.sql`, `backend/database/migrations/004_product_image_url.sql` y finalmente `backend/database/seeds/001_demo_data.sql`.
