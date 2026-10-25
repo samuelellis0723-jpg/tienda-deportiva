@@ -11,53 +11,102 @@ ON CONFLICT (name, province) DO UPDATE SET shipping_cost = EXCLUDED.shipping_cos
 INSERT INTO categories (slug, name, description) VALUES
 ('judo', 'Judo', 'Uniformes y equipo para Judo'),
 ('bjj', 'BJJ', 'Uniformes y equipo para Brazilian Jiu-Jitsu'),
-('uniformes', 'Uniformes', 'Kimonos y gis'),
-('proteccion', 'Protección', 'Protecciones para entrenamiento')
+('uniformes', 'Tipos de producto', 'Clasificacion canonica del catalogo OJE'),
+('proteccion', 'Proteccion', 'Protecciones para entrenamiento')
 ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, is_active = true;
 
 INSERT INTO categories (parent_id, slug, name, description)
-SELECT c.id, 'judo-gi', 'Judogi', 'Judogis de entrenamiento y competencia' FROM categories c WHERE c.slug = 'judo'
+SELECT c.id, 'judo-gi', 'Judogi', 'Clasificacion historica de kimono de Judo' FROM categories c WHERE c.slug = 'judo'
 ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name;
 INSERT INTO categories (parent_id, slug, name, description)
-SELECT c.id, 'bjj-gi', 'BJJ Gi', 'Kimonos para Brazilian Jiu-Jitsu' FROM categories c WHERE c.slug = 'bjj'
+SELECT c.id, 'bjj-gi', 'BJJ Gi', 'Clasificacion historica de kimono de BJJ' FROM categories c WHERE c.slug = 'bjj'
 ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name;
+INSERT INTO categories (parent_id, slug, name, description)
+SELECT c.id, 'rashguard', 'Rashguard', 'Clasificacion historica de camisa deportiva' FROM categories c WHERE c.slug = 'bjj'
+ON CONFLICT (slug) DO UPDATE SET parent_id = EXCLUDED.parent_id, name = EXCLUDED.name, description = EXCLUDED.description, is_active = true;
+INSERT INTO categories (parent_id, slug, name, description)
+SELECT c.id, 'cinturones', 'Cinturones', 'Clasificacion historica de cinturones BJJ' FROM categories c WHERE c.slug = 'bjj'
+ON CONFLICT (slug) DO UPDATE SET parent_id = EXCLUDED.parent_id, name = EXCLUDED.name, description = EXCLUDED.description, is_active = true;
+INSERT INTO categories (parent_id, slug, name, description)
+SELECT root.id, types.slug, types.name, 'Tipo de producto OJE; la disciplina se asigna aparte.'
+FROM categories root CROSS JOIN (VALUES
+  ('kimonos','Kimonos'),('cinturones','Cinturones'),('conjuntos-entrenamiento','Conjuntos de entrenamiento'),
+  ('camisas','Camisas'),('sudaderas','Sudaderas / suéteres'),('medias','Medias OJE')
+) AS types(slug,name)
+WHERE root.slug='uniformes'
+ON CONFLICT (slug) DO UPDATE SET parent_id=EXCLUDED.parent_id,name=EXCLUDED.name,description=EXCLUDED.description,is_active=true;
 
-INSERT INTO products (sku, slug, name, description, status, price, published_at) VALUES
-('OJE-JD-001', 'judogi-competencia-azul', 'Judogi Competencia Azul', 'Judogi resistente para práctica y competencia.', 'publicado', 42000, now()),
-('OJE-JD-002', 'judogi-entrenamiento-blanco', 'Judogi Entrenamiento Blanco', 'Judogi de algodón para entrenamiento regular.', 'publicado', 31500, now()),
-('OJE-BJ-001', 'bjj-gi-negro', 'BJJ Gi Negro', 'Kimono de BJJ con refuerzos en zonas de tensión.', 'publicado', 48500, now()),
-('OJE-BJ-002', 'rashguard-tatami', 'Rashguard Tatami', 'Camiseta de compresión para grappling.', 'publicado', 18500, now()),
-('OJE-PR-001', 'cinturon-bjj-azul', 'Cinturón BJJ Azul', 'Cinturón de algodón para BJJ.', 'publicado', 9500, now()),
-('OJE-DRAFT-001', 'prototipo-judogi', 'Prototipo Judogi', 'Producto de prueba en borrador; no debe salir en el catálogo público.', 'borrador', 29900, NULL)
-ON CONFLICT (sku) DO UPDATE SET slug=EXCLUDED.slug, name=EXCLUDED.name, description=EXCLUDED.description, status=EXCLUDED.status, price=EXCLUDED.price, published_at=EXCLUDED.published_at;
+INSERT INTO products (sku, slug, name, description, image_url, status, price, published_at) VALUES
+('OJE-JD-001', 'judogi-competencia-azul', 'Judogi Competencia Azul', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/judogi-competencia-azul.webp', 'publicado', 42000, now()),
+('OJE-JD-002', 'judogi-entrenamiento-blanco', 'Judogi Entrenamiento Blanco', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/judogi-entrenamiento-blanco.jpg', 'publicado', 31500, now()),
+('OJE-BJ-001', 'bjj-gi-negro', 'BJJ Gi Negro', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/bjj-gi-negro.jpg', 'publicado', 48500, now()),
+('OJE-BJ-002', 'rashguard-tatami', 'Rashguard Tatami', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/rashguard-tatami.jpg', 'publicado', 18500, now()),
+('OJE-PR-001', 'cinturon-bjj-azul', 'Cinturon BJJ Azul', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/cinturones-azul.svg', 'publicado', 9500, now()),
+('OJE-DRAFT-001', 'prototipo-judogi', 'Prototipo Judogi', 'DEMOSTRACION OJE: borrador de prueba; no representa oferta comercial.', '/catalog-art/judogi-prototipo-fuji.webp', 'borrador', 29900, NULL),
+('OJE-PR-002', 'cinturon-bjj-morado', 'Cinturon BJJ Morado', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/cinturones-morado.svg', 'publicado', 9500, now()),
+('OJE-SET-001', 'conjunto-entrenamiento-verde', 'Conjunto de entrenamiento verde', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/conjuntos-entrenamiento.svg', 'publicado', 24000, now()),
+('OJE-SET-002', 'conjunto-entrenamiento-negro', 'Conjunto de entrenamiento negro', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/conjuntos-entrenamiento-negro.svg', 'publicado', 24000, now()),
+('OJE-TEE-001', 'camisa-entrenamiento-blanca', 'Camisa de entrenamiento blanca', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/camisas.svg', 'publicado', 12000, now()),
+('OJE-TEE-002', 'camisa-entrenamiento-negra', 'Camisa de entrenamiento negra', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/camisas-negra.svg', 'publicado', 12000, now()),
+('OJE-HOOD-001', 'sudadera-oje-verde', 'Sudadera OJE verde', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/sudaderas.svg', 'publicado', 28000, now()),
+('OJE-HOOD-002', 'sudadera-oje-gris', 'Sudadera OJE gris', 'DEMOSTRACION OJE: producto de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/sudaderas-gris.svg', 'publicado', 28000, now()),
+('OJE-SOCK-001', 'medias-oje-blancas', 'Medias OJE blancas', 'DEMOSTRACION OJE: articulo de marca de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/medias.svg', 'publicado', 6500, now()),
+('OJE-SOCK-002', 'medias-oje-verdes', 'Medias OJE verdes', 'DEMOSTRACION OJE: articulo de marca de prueba; confirmar detalles comerciales antes de vender.', '/catalog-art/medias-verde.svg', 'publicado', 6500, now())
+ON CONFLICT (sku) DO UPDATE SET slug=EXCLUDED.slug,name=EXCLUDED.name,description=EXCLUDED.description,image_url=EXCLUDED.image_url,status=EXCLUDED.status,price=EXCLUDED.price,published_at=EXCLUDED.published_at;
 
+DELETE FROM product_categories pc USING products p,categories c
+WHERE pc.product_id=p.id AND pc.category_id=c.id
+  AND p.slug IN ('judogi-competencia-azul','judogi-entrenamiento-blanco','bjj-gi-negro','rashguard-tatami','cinturon-bjj-azul','prototipo-judogi','cinturon-bjj-morado','conjunto-entrenamiento-verde','conjunto-entrenamiento-negro','camisa-entrenamiento-blanca','camisa-entrenamiento-negra','sudadera-oje-verde','sudadera-oje-gris','medias-oje-blancas','medias-oje-verdes')
+  AND c.slug IN ('judo-gi','bjj-gi','rashguard','cinturones');
 INSERT INTO product_categories (product_id, category_id)
-SELECT p.id, c.id FROM (VALUES
-('judogi-competencia-azul','judo'), ('judogi-competencia-azul','judo-gi'),
-('judogi-entrenamiento-blanco','judo'), ('judogi-entrenamiento-blanco','judo-gi'),
-('bjj-gi-negro','bjj'), ('bjj-gi-negro','bjj-gi'), ('rashguard-tatami','bjj'),
-('cinturon-bjj-azul','bjj'), ('prototipo-judogi','judo')
-) AS x(product_slug, category_slug)
+SELECT p.id,c.id FROM (VALUES
+('judogi-competencia-azul','judo'),('judogi-competencia-azul','kimonos'),
+('judogi-entrenamiento-blanco','judo'),('judogi-entrenamiento-blanco','kimonos'),
+('bjj-gi-negro','bjj'),('bjj-gi-negro','kimonos'),('rashguard-tatami','bjj'),('rashguard-tatami','camisas'),
+('cinturon-bjj-azul','bjj'),('cinturon-bjj-azul','cinturones'),('prototipo-judogi','judo'),('prototipo-judogi','kimonos'),
+('cinturon-bjj-morado','bjj'),('cinturon-bjj-morado','cinturones'),
+('conjunto-entrenamiento-verde','judo'),('conjunto-entrenamiento-verde','bjj'),('conjunto-entrenamiento-verde','conjuntos-entrenamiento'),
+('conjunto-entrenamiento-negro','judo'),('conjunto-entrenamiento-negro','bjj'),('conjunto-entrenamiento-negro','conjuntos-entrenamiento'),
+('camisa-entrenamiento-blanca','judo'),('camisa-entrenamiento-blanca','bjj'),('camisa-entrenamiento-blanca','camisas'),
+('camisa-entrenamiento-negra','judo'),('camisa-entrenamiento-negra','bjj'),('camisa-entrenamiento-negra','camisas'),
+('sudadera-oje-verde','judo'),('sudadera-oje-verde','bjj'),('sudadera-oje-verde','sudaderas'),
+('sudadera-oje-gris','judo'),('sudadera-oje-gris','bjj'),('sudadera-oje-gris','sudaderas'),
+('medias-oje-blancas','judo'),('medias-oje-blancas','bjj'),('medias-oje-blancas','medias'),
+('medias-oje-verdes','judo'),('medias-oje-verdes','bjj'),('medias-oje-verdes','medias')
+) AS x(product_slug,category_slug)
 JOIN products p ON p.slug=x.product_slug JOIN categories c ON c.slug=x.category_slug
 ON CONFLICT DO NOTHING;
 
-INSERT INTO product_variants (product_id, sku, size, color)
-SELECT p.id, v.sku, v.size, v.color FROM (VALUES
-('judogi-competencia-azul','OJE-JD-001-A1','A1','Azul'),
-('judogi-competencia-azul','OJE-JD-001-A2','A2','Azul'),
-('judogi-entrenamiento-blanco','OJE-JD-002-A2','A2','Blanco'),
-('bjj-gi-negro','OJE-BJ-001-A1','A1','Negro'),
-('bjj-gi-negro','OJE-BJ-001-A2','A2','Negro'),
-('rashguard-tatami','OJE-BJ-002-M','M','Negro'),
-('cinturon-bjj-azul','OJE-PR-001-A2','A2','Azul'),
-('prototipo-judogi','OJE-DRAFT-001-A1','A1','Blanco')
-) AS v(product_slug, sku, size, color) JOIN products p ON p.slug=v.product_slug
-ON CONFLICT (sku) DO UPDATE SET size=EXCLUDED.size, color=EXCLUDED.color;
+INSERT INTO product_variants (product_id,sku,size,color)
+SELECT p.id,v.sku,v.size,v.color FROM (VALUES
+('judogi-competencia-azul','OJE-JD-001-A1','A1','Azul'),('judogi-competencia-azul','OJE-JD-001-A2','A2','Azul'),
+('judogi-entrenamiento-blanco','OJE-JD-002-A2','A2','Blanco'),('judogi-entrenamiento-blanco','OJE-JD-002-A3','A3','Blanco'),
+('bjj-gi-negro','OJE-BJ-001-A1','A1','Negro'),('bjj-gi-negro','OJE-BJ-001-A2','A2','Negro'),
+('rashguard-tatami','OJE-BJ-002-M','M','Negro'),('cinturon-bjj-azul','OJE-PR-001-A2','240 cm','Azul'),('cinturon-bjj-azul','OJE-PR-001-260','260 cm','Azul'),
+('prototipo-judogi','OJE-DRAFT-001-A1','A1','Blanco'),('cinturon-bjj-morado','OJE-PR-002-240','240 cm','Morado'),('cinturon-bjj-morado','OJE-PR-002-260','260 cm','Morado'),
+('conjunto-entrenamiento-verde','OJE-SET-001-S','S','Verde'),('conjunto-entrenamiento-verde','OJE-SET-001-M','M','Verde'),
+('conjunto-entrenamiento-negro','OJE-SET-002-M','M','Negro'),('conjunto-entrenamiento-negro','OJE-SET-002-L','L','Negro'),
+('camisa-entrenamiento-blanca','OJE-TEE-001-M','M','Blanco'),('camisa-entrenamiento-blanca','OJE-TEE-001-L','L','Blanco'),
+('camisa-entrenamiento-negra','OJE-TEE-002-M','M','Negro'),('camisa-entrenamiento-negra','OJE-TEE-002-L','L','Negro'),
+('sudadera-oje-verde','OJE-HOOD-001-M','M','Verde'),('sudadera-oje-verde','OJE-HOOD-001-L','L','Verde'),
+('sudadera-oje-gris','OJE-HOOD-002-M','M','Gris'),('sudadera-oje-gris','OJE-HOOD-002-L','L','Gris'),
+('medias-oje-blancas','OJE-SOCK-001-SM','S/M','Blanco'),('medias-oje-blancas','OJE-SOCK-001-LXL','L/XL','Blanco'),
+('medias-oje-verdes','OJE-SOCK-002-SM','S/M','Verde'),('medias-oje-verdes','OJE-SOCK-002-LXL','L/XL','Verde')
+) AS v(product_slug,sku,size,color) JOIN products p ON p.slug=v.product_slug
+ON CONFLICT (sku) DO UPDATE SET size=EXCLUDED.size,color=EXCLUDED.color;
 
-INSERT INTO inventory (variant_id, on_hand, reserved)
-SELECT id, CASE sku WHEN 'OJE-JD-001-A1' THEN 8 WHEN 'OJE-JD-001-A2' THEN 3 WHEN 'OJE-JD-002-A2' THEN 12 WHEN 'OJE-BJ-001-A1' THEN 4 WHEN 'OJE-BJ-001-A2' THEN 9 WHEN 'OJE-BJ-002-M' THEN 20 WHEN 'OJE-PR-001-A2' THEN 15 ELSE 2 END, 0
-FROM product_variants WHERE sku LIKE 'OJE-%'
-ON CONFLICT (variant_id) DO UPDATE SET on_hand=EXCLUDED.on_hand, reserved=0, updated_at=now();
+INSERT INTO inventory (variant_id,on_hand,reserved)
+SELECT pv.id,COALESCE(d.on_hand,2),0 FROM product_variants pv
+LEFT JOIN (VALUES
+('OJE-JD-001-A1',8),('OJE-JD-001-A2',3),('OJE-JD-002-A2',12),('OJE-JD-002-A3',5),
+('OJE-BJ-001-A1',4),('OJE-BJ-001-A2',9),('OJE-BJ-002-M',20),('OJE-PR-001-A2',15),('OJE-PR-001-260',8),
+('OJE-DRAFT-001-A1',2),('OJE-PR-002-240',10),('OJE-PR-002-260',6),('OJE-SET-001-S',7),('OJE-SET-001-M',4),
+('OJE-SET-002-M',5),('OJE-SET-002-L',3),('OJE-TEE-001-M',16),('OJE-TEE-001-L',10),('OJE-TEE-002-M',12),('OJE-TEE-002-L',8),
+('OJE-HOOD-001-M',6),('OJE-HOOD-001-L',4),('OJE-HOOD-002-M',5),('OJE-HOOD-002-L',3),
+('OJE-SOCK-001-SM',24),('OJE-SOCK-001-LXL',18),('OJE-SOCK-002-SM',20),('OJE-SOCK-002-LXL',14)
+) AS d(sku,on_hand) ON d.sku=pv.sku
+WHERE d.sku IS NOT NULL
+ON CONFLICT (variant_id) DO UPDATE SET on_hand=GREATEST(EXCLUDED.on_hand,inventory.reserved),updated_at=now();
 
 INSERT INTO collections (slug, title, description, status, is_featured) VALUES
 ('destacados', 'Selección OJE', 'Productos destacados para entrenar.', 'publicado', true),

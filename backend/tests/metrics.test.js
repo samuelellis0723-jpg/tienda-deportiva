@@ -18,6 +18,10 @@ test('admin summary and replenishment alerts aggregate paid sales and seven-day 
     if (normalized.includes('average_order_value')) return { rows: [{ average_order_value: '18500.00' }], rowCount: 1 };
     if (normalized.includes('SELECT status,COUNT(*)')) return { rows: [{ status: 'cancelled', count: 1 }, { status: 'paid', count: 2 }, { status: 'pending_payment', count: 1 }], rowCount: 3 };
     if (normalized.includes("COUNT(*) FILTER (WHERE status='publicado')")) return { rows: [{ published: 4, draft: 2 }], rowCount: 1 };
+    if (normalized.includes('product_type_stock')) return { rows: [
+      { typeId: 7, slug: 'kimonos', name: 'Kimonos', productCount: 2, availableUnits: 8, lowStockProducts: 1, outOfStockProducts: 0 },
+      { typeId: 8, slug: 'cinturones', name: 'Cinturones', productCount: 0, availableUnits: 0, lowStockProducts: 0, outOfStockProducts: 0 },
+    ], rowCount: 2 };
     if (normalized.includes('WITH sales_7_days AS')) return { rows: [
       { variantId: 30, sku: 'ZERO', productName: 'Cinturón', availableStock: 0, unitsSoldLast7Days: 0, averageDailySales: '0.00', daysOfStockRemaining: null },
       { variantId: 31, sku: 'LOW', productName: 'Gi', availableStock: 1, unitsSoldLast7Days: 3, averageDailySales: '0.43', daysOfStockRemaining: '2.33' },
@@ -43,6 +47,14 @@ test('admin summary and replenishment alerts aggregate paid sales and seven-day 
   assert.equal(summary.averageOrderValue, '18500.00');
   assert.equal(summary.orderCounts.find((item) => item.status === 'cancelled').count, 1);
   assert.deepEqual(summary.productCounts, { published: 4, draft: 2 });
+  assert.deepEqual(summary.inventoryByType[0], { typeId: 7, slug: 'kimonos', name: 'Kimonos', productCount: 2, availableUnits: 8, lowStockProducts: 1, outOfStockProducts: 0 });
+  assert.equal(summary.inventoryByType[1].outOfStockProducts, 0);
+  const inventoryTypeSql = sqlSeen.find((sql) => sql.includes('product_type_stock'));
+  assert.match(inventoryTypeSql, /GREATEST\(COALESCE\(i\.on_hand,0\) - COALESCE\(i\.reserved,0\),0\)/);
+  assert.match(inventoryTypeSql, /CASE WHEN .*?=0 THEN 'out_of_stock'/);
+  assert.match(inventoryTypeSql, /units_sold/);
+  assert.match(inventoryTypeSql, /COUNT\(\*\) FILTER \(WHERE has_low_stock\)/);
+  assert.match(inventoryTypeSql, /COUNT\(\*\) FILTER \(WHERE out_of_stock\)/);
   const alertsResponse = await fetch(`${base}/api/alertas-reposicion`, { headers });
   assert.equal(alertsResponse.status, 200);
   const alerts = await alertsResponse.json();
@@ -51,7 +63,7 @@ test('admin summary and replenishment alerts aggregate paid sales and seven-day 
   assert.equal(alerts.meta.periodDays, 7);
   const salesSql = sqlSeen.filter((sql) => sql.includes('SUM(oi.quantity)') || sql.includes('AVG(total)'));
   for (const sql of salesSql) assert.match(sql, /'paid','processing','shipped','delivered'/);
-  const alertSql = sqlSeen.find((sql) => sql.includes('WITH sales_7_days AS'));
+  const alertSql = sqlSeen.find((sql) => sql.includes('NULLIF('));
   assert.match(alertSql, /now\(\) - interval '7 days'/);
   assert.match(alertSql, /NULLIF\(/);
 });

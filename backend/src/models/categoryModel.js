@@ -5,7 +5,16 @@ export async function listCategories({ includeInactive = false } = {}) {
     SELECT c.id, c.parent_id AS "parentId", c.slug, c.name, c.description,
            c.is_active AS "isActive", c.created_at AS "createdAt"
     FROM categories c
-    WHERE ($1::boolean OR c.is_active = true)
+    WHERE ($1::boolean OR (c.is_active = true AND NOT EXISTS (
+      WITH RECURSIVE ancestors(id, parent_id, is_active) AS (
+        SELECT parent.id, parent.parent_id, parent.is_active
+        FROM categories parent WHERE parent.id=c.parent_id
+        UNION ALL
+        SELECT parent.id, parent.parent_id, parent.is_active
+        FROM categories parent JOIN ancestors child ON parent.id=child.parent_id
+      )
+      SELECT 1 FROM ancestors WHERE is_active=false
+    )))
     ORDER BY c.name ASC, c.id ASC`, [includeInactive]);
   return result.rows;
 }
@@ -14,7 +23,16 @@ export async function getCategory(id, { includeInactive = true } = {}) {
   const result = await query(`
     SELECT c.id, c.parent_id AS "parentId", c.slug, c.name, c.description,
            c.is_active AS "isActive", c.created_at AS "createdAt"
-    FROM categories c WHERE c.id = $1 AND ($2::boolean OR c.is_active = true)`, [id, includeInactive]);
+    FROM categories c WHERE c.id = $1 AND ($2::boolean OR (c.is_active = true AND NOT EXISTS (
+      WITH RECURSIVE ancestors(id, parent_id, is_active) AS (
+        SELECT parent.id, parent.parent_id, parent.is_active
+        FROM categories parent WHERE parent.id=c.parent_id
+        UNION ALL
+        SELECT parent.id, parent.parent_id, parent.is_active
+        FROM categories parent JOIN ancestors child ON parent.id=child.parent_id
+      )
+      SELECT 1 FROM ancestors WHERE is_active=false
+    )))`, [id, includeInactive]);
   return result.rows[0] ?? null;
 }
 

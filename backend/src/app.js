@@ -12,7 +12,10 @@ app.use((error, _req, _res, next) => {
   if (error instanceof SyntaxError && 'body' in error) return next(new ApiError(400, 'El cuerpo JSON no es válido.'));
   return next(error);
 });
-app.use('/api', apiRoutes);
+app.use('/api', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+}, apiRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
