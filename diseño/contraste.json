@@ -1,0 +1,110 @@
+{
+  "method": "WCAG sRGB relative luminance",
+  "results": [
+    {
+      "foreground": "--ink",
+      "background": "--paper",
+      "ratio": 14.39,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--muted",
+      "background": "--paper",
+      "ratio": 5.39,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--muted",
+      "background": "--surface",
+      "ratio": 5.93,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--vermilion",
+      "background": "--paper",
+      "ratio": 6.35,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--vermilion",
+      "background": "--paper-deep",
+      "ratio": 5.65,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--on-dark",
+      "background": "--forest",
+      "ratio": 10.62,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--on-dark",
+      "background": "--vermilion",
+      "ratio": 6.35,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--dark-muted",
+      "background": "--forest",
+      "ratio": 6.8,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--accent-bright",
+      "background": "--ink",
+      "ratio": 5.45,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--error",
+      "background": "--error-bg",
+      "ratio": 8.01,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--success",
+      "background": "--success-bg",
+      "ratio": 8.2,
+      "minimum": 4.5,
+      "pass": true
+    },
+    {
+      "foreground": "--control-border",
+      "background": "--surface",
+      "ratio": 3.82,
+      "minimum": 3,
+      "pass": true
+    },
+    {
+      "foreground": "--control-border",
+      "background": "--paper",
+      "ratio": 3.47,
+      "minimum": 3,
+      "pass": true
+    },
+    {
+      "foreground": "--focus-light",
+      "background": "--forest",
+      "ratio": 11.69,
+      "minimum": 3,
+      "pass": true
+    },
+    {
+      "foreground": "--ink",
+      "background": "--surface",
+      "ratio": 15.85,
+      "minimum": 3,
+      "pass": true
+    }
+  ]
+}

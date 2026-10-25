@@ -1,1 +1,12 @@
-:root { font-family: Inter, "Helvetica Neue", Arial, sans-serif; color: #171714; background: #f5f2e9; font-synthesis: none; text-rendering: optimizeLegibility; --paper: #f5f2e9; --paper-deep: #ebe5d8; --surface: #fffdf8; --ink: #171714; --muted: #67645e; --line: #d9d2c5; --vermilion: #b62d25; --forest: #263b34; --serif: Georgia, "Times New Roman", serif; --radius: 4px; --content: 1220px; }
+:root {
+  --paper: #f5f4ef; --paper-deep: #e9e7de; --surface: #ffffff; --ink: #1c2422; --muted: #5d6661; --line: #d5d9d2; --control-border: #7b857d; --focus-light: #ffffff;
+  --vermilion: #a62c20; --accent-bright: #ff654f; --forest: #253d34; --on-dark: #f5f4ef; --dark-muted: #bec8bf;
+  --error: #8d211a; --error-bg: #fff0ed; --success: #255136; --success-bg: #eef5ef;
+  --sans: Arial, Helvetica, sans-serif; --serif: Georgia, 'Times New Roman', serif;
+  --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem; --text-lg: 1.25rem; --text-xl: 1.5rem; --text-2xl: 2rem; --text-3xl: 3rem; --text-4xl: 4rem; --text-5xl: 4.5rem; --text-6xl: 5rem; --text-hero: 8.2rem; --text-mark: 30rem; --text-mobile-hero: 4.2rem; --touch-target: 44px; --duration-pulse: 1.2s;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-20: 80px; --space-24: 96px;
+  --breakpoint-sm: 600px; --breakpoint-md: 800px; --breakpoint-lg: 1100px; --radius: 3px; --radius-pill: 999px; --content: 1440px; --sidebar: 244px;
+  --backdrop: #10241dcc; --shadow: 0 16px 64px #14251b1a; --shadow-dialog: 0 24px 80px #0004;
+  --z-header: 10; --z-notice: 20; --z-overlay: 40; --duration: 180ms; --duration-long: 350ms; --ease: cubic-bezier(.2,.7,.2,1);
+  font-family: var(--sans); color: var(--ink); background: var(--paper); font-synthesis: none; text-rendering: optimizeLegibility;
+}

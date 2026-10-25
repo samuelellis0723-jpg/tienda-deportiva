@@ -4,11 +4,13 @@
 
 1. En n8n, importa `oje-assistant.workflow.json`. Se importa inactivo.
 2. Crea la variable de instancia `OJE_API_BASE_URL` con la URL base de Express que pueda alcanzar el proceso n8n, por ejemplo la URL interna del servicio backend. No incluyas `/` al final. El workflow añade `/api` a las rutas.
-3. Abre `Modelo de chat (configurar credencial)` y selecciona/crea la credencial del proveedor de IA dentro de n8n. El workflow exportado no contiene credenciales. Ajusta el modelo permitido por esa credencial si es necesario.
-4. En el nodo `OJE Webhook`, configura `Allowed Origins (CORS)` con el origen exacto del frontend. El export inicia con `http://localhost:5173`; reemplázalo en producción.
+3. Abre `DeepSeek Chat Model` y selecciona/crea tu credencial de DeepSeek dentro de n8n. El workflow exportado no incluye credenciales vinculadas a una cuenta.
+4. En el nodo `OJE Webhook`, configura `Allowed Origins (CORS)` con el origen exacto del frontend. El export permite `http://localhost:5173` y `http://127.0.0.1:5173`; en producción reemplázalos por el origen exacto del sitio.
 5. Guarda y activa el workflow. Copia la **Production URL** del nodo, cuya ruta acaba en `/webhook/oje-assistant`, a `VITE_N8N_WEBHOOK_URL` en el entorno de build del frontend.
 
 La URL de desarrollo `/webhook-test/oje-assistant` solo funciona mientras el nodo está en modo de escucha. No la uses como URL de producción. Reinicia Vite después de cambiar `.env`.
+
+En desarrollo, si no se configura una URL, el frontend usa el proxy local `/n8n/webhook/oje-assistant`. En producción, define `VITE_N8N_WEBHOOK_URL` con la Production URL completa; el frontend conserva el dominio configurado y n8n debe permitir el origen exacto del sitio en CORS. Sin URL configurada, las acciones de IA quedan deshabilitadas en el build de producción.
 
 ## Contratos
 

@@ -12,6 +12,11 @@ export function AuthProvider({ children }) {
     catch (cause) { setUser(null); setStatus(cause.status === 401 ? 'anonymous' : 'error'); if (cause.status !== 401) setError(cause.message); return null; }
   }, []);
   useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    const expire = () => { setUser(null); setStatus('anonymous'); setError('Tu sesión terminó. Iniciá sesión de nuevo.'); };
+    globalThis.addEventListener('oje:session-expired', expire);
+    return () => globalThis.removeEventListener('oje:session-expired', expire);
+  }, []);
   const login = useCallback(async (email, password) => { const result = await loginRequest(email, password); setUser(result.user); setStatus('authenticated'); setError(''); return result.user; }, []);
   const logout = useCallback(async () => { await logoutRequest(); setUser(null); setStatus('anonymous'); }, []);
   const value = useMemo(() => ({ status, user, error, login, logout, refresh }), [status, user, error, login, logout, refresh]);

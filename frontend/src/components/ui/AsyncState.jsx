@@ -1,3 +1,3 @@
-export function Loading({ label = 'Cargando…' }) { return <div className="loading" role="status">{label}</div>; }
+export function Loading({ label = 'Cargando…' }) { return <div className="loading" role="status"><span>{label}</span><div className="skeleton-grid" aria-hidden="true">{[1,2,3,4].map(key => <div className="skeleton" key={key}/>)}</div></div>; }
 export function ErrorNotice({ message, onRetry }) { return <div className="notice error" role="alert">{message}{onRetry && <button className="inline-button" onClick={onRetry}>Intentar de nuevo</button>}</div>; }
 export function EmptyState({ title, children, action }) { return <div className="empty-state"><h2>{title}</h2><p className="muted">{children}</p>{action}</div>; }
